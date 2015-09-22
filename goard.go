@@ -41,10 +41,7 @@ func addRemote(c *gin.Context) {
       server := c.Param("server")
       addr := c.Query("addr")
       password := c.Query("password")
-      c.String(200, server)
-      c.String(200, addr)
-      c.String(200, password)
-
+      
       if password == "" { 
         c.Error(fmt.Errorf("Need to define a remote server password"))
 		  }
