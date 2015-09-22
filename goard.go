@@ -17,6 +17,37 @@ import (
 
 var config *lxd.Config
 
+// URL: /:server/:container/snapshot/:snapname
+func doSnapshot(c *gin.Context) {
+  server := c.Param("server")
+  container := c.Param("container")
+  snapname := c.Param("snapname")
+
+  remote := config.ParseRemote(server)
+  client, err := lxd.NewClient(config, remote)
+  if err != nil {
+   c.Error(err) //return err
+  }
+
+	// we don't allow '/' in snapshot names
+	if shared.IsSnapshot(snapname) {
+    c.Error(fmt.Errorf("'/' not allowed in snapshot name"))
+	}
+
+	resp, err := client.Snapshot(container, snapname, false)
+	if err != nil {
+	  c.Error(err)
+  }
+
+  err = client.WaitForSuccess(resp.Operation)
+  if err != nil {
+    c.Error(err)
+  }
+
+  c.String(200, "Snapshot DONE")
+}
+
+
 func listContainers(c *gin.Context) {
       server := c.Param("server")
 
@@ -25,15 +56,15 @@ func listContainers(c *gin.Context) {
 	    if err != nil {
        c.Error(err) //return err
 	    }
-      
+
       ctslist, err := client.ListContainers()
       if err != nil {
         c.Error(err) //return err
       }
 
-        for _, cinfo := range ctslist {
-            c.String(200, cinfo.State.Name)
-        }
+      for _, cinfo := range ctslist {
+        c.String(200, cinfo.State.Name)
+      }
 }
 
 
@@ -189,6 +220,7 @@ func main() {
     config, _ = lxd.LoadConfig()
     
     r := gin.Default()
+    r.GET("/:server/snapshot/:container/:snapname", doSnapshot)
     r.GET("/:server/list_containers", listContainers)
     r.GET("/:server/remote/add/", addRemote)
     r.Run(":8080") // listen and serve on 0.0.0.0:8080
