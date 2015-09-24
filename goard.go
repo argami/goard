@@ -20,8 +20,10 @@ var config *lxd.Config
 // Execute command, intercepts stdout and print info
 func commandWrapper(c *gin.Context, command string, args []string) {
   old_stdout := os.Stdout // keep backup of the real stdout
+  old_stderr := os.Stderr // keep backup of the real stdout
   r, w, _ := os.Pipe()
   os.Stdout = w
+  os.Stderr = w
 
   err := commands[command].run(config, args)
   if err != nil {
@@ -40,6 +42,7 @@ func commandWrapper(c *gin.Context, command string, args []string) {
   // back to normal state
   w.Close()
   os.Stdout = old_stdout // restoring the real stdout
+  os.Stderr = old_stderr // restoring the real stdout
   out := <-outC
 
   c.String(200, out)
@@ -118,7 +121,7 @@ func webMove(c *gin.Context) {
     c.Error(err)
   }
 
-  c.String(200, "Snapshot DONE")
+  c.String(200, "Move DONE")
 }
 
 ////////////////////////////////////////////////
