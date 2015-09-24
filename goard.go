@@ -25,6 +25,7 @@ func commandWrapper(c *gin.Context, command string, args []string) {
 
   err := commands[command].run(config, args)
   if err != nil {
+    c.String(400, err.Error())
     c.Error(err)
   }
 
@@ -69,16 +70,19 @@ func webRemote(c *gin.Context) {
   password := c.Query("password")
       
   if password == "" { 
+    c.String(400, "Need to define a remote server password")
     c.Error(fmt.Errorf("Need to define a remote server password"))
   }
 
   if addr == "" { 
+    c.String(400, "Need to define a remote addr")
     c.Error(fmt.Errorf("Need to define a remote addr"))
   }
  
   args := []string{"add", remote, addr, "true", password, "true"}
   err := commands["remote"].run(config, args)
   if err != nil {
+    c.String(400, err.Error())
     c.Error(err)
   }
   c.String(200, "Remote Added")
@@ -101,6 +105,21 @@ func webSnapshot(c *gin.Context) {
 }
 
 
+// URL: /snapshot/:remote/:container
+func webMove(c *gin.Context) {
+  from := c.Param("from")
+  to := c.Param("to")
+  // snapname := c.Param("snapname")
+
+  args := []string{from, to}
+  err := commands["move"].run(config, args)
+  if err != nil {
+    c.String(400, err.Error())
+    c.Error(err)
+  }
+
+  c.String(200, "Snapshot DONE")
+}
 
 ////////////////////////////////////////////////
 // Main
@@ -121,6 +140,6 @@ func main() {
     r.GET("/list/:remote", webListContainers)
     r.GET("/remote/add/:remote", webRemote)
     r.GET("/snapshot/:remote/:container", webSnapshot)
-    // r.GET("/move/:from/:to/", doMove)
+    r.GET("/move/:from/:to/", webMove)
     r.Run(":8080") // listen and serve on 0.0.0.0:8080
   }
