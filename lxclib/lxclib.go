@@ -1,4 +1,4 @@
-package main
+package lxclib
 
 import (
 	"fmt"
@@ -133,9 +133,13 @@ func run() error {
 
 type command interface {
 	usage() string
-	flags()
+  flags()
 	showByDefault() bool
 	run(config *lxd.Config, args []string) error
+}
+
+func RunCommand(config *lxd.Config, name string, args []string) error {
+  return commands[name].run(config, args) 
 }
 
 var commands = map[string]command{

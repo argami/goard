@@ -8,6 +8,7 @@ import (
   "log"
   "os"
   "path/filepath"
+  "github.com/argami/goard/lxclib"
 
   
   "github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func commandWrapper(c *gin.Context, command string, args []string) {
   os.Stdout = w
   os.Stderr = w
 
-  err := commands[command].run(config, args)
+  err := lxclib.RunCommand(config, command, args)
   if err != nil {
     c.String(400, err.Error())
     c.Error(err)
@@ -83,7 +84,7 @@ func webRemote(c *gin.Context) {
   }
  
   args := []string{"add", remote, addr, "true", password, "true"}
-  err := commands["remote"].run(config, args)
+  err := lxclib.RunCommand(config, "remote", args)
   if err != nil {
     c.String(400, err.Error())
     c.Error(err)
@@ -98,7 +99,7 @@ func webSnapshot(c *gin.Context) {
   // snapname := c.Param("snapname")
 
   args := []string{remote + ":" + container}
-  err := commands["snapshot"].run(config, args)
+  err := lxclib.RunCommand(config, "snapshot", args)
   if err != nil {
     c.String(400, err.Error())
     c.Error(err)
@@ -115,7 +116,7 @@ func webMove(c *gin.Context) {
   // snapname := c.Param("snapname")
 
   args := []string{from, to}
-  err := commands["move"].run(config, args)
+  err := lxclib.RunCommand(config, "move", args)
   if err != nil {
     c.String(400, err.Error())
     c.Error(err)

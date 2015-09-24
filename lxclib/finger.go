@@ -1,4 +1,4 @@
-package main
+package lxclib
 
 import (
 	"github.com/chai2010/gettext-go/gettext"
