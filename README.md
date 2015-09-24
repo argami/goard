@@ -1,5 +1,13 @@
 # goard
 
+### NOTES
+
+apt-get install libprotobuf-dev libprotobuf-c0-dev protobuf-c-compiler protobuf-compiler python-protobuf
+http://criu.org/Installation
+
+### live migrate
+
+https://insights.ubuntu.com/2015/05/06/live-migration-in-lxd/
 
 ### setup
 
